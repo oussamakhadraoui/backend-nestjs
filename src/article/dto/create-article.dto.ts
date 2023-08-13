@@ -1,14 +1,15 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, Min, Max } from 'class-validator';
 import { Article } from '../entities/article.entity';
 
 export class CreateArticleDto implements Article {
-  // createdAt: Date;
   @IsNotEmpty()
   description: string;
   id: number;
   @IsNotEmpty()
   name: string;
   published: boolean;
-  // userId: number;
-  // updatedAt: Date;
+  @IsNotEmpty()
+  @Min(1)
+  @Max(5)
+  rating: number;
 }

@@ -4,7 +4,6 @@ import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { User } from 'src/user/entities/user.entity';
 import { Article } from './entities/article.entity';
-
 @Injectable()
 export class ArticleService {
   constructor(private Prisma: PrismaService) {}
@@ -13,7 +12,7 @@ export class ArticleService {
     user: User,
   ): Promise<Article> {
     const article = await this.Prisma.articles.create({
-      data: { ...createArticleDto, userId: user.id },
+      data: { ...createArticleDto, userId: user.id, rating: 1 },
     });
     return article;
   }

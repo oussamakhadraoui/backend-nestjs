@@ -18,7 +18,18 @@ model Users {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   Article Articles[]
+  passResetExpire DateTime? 
+  passResetToken String?
+  role  Role    @default(USER)
+  photo String? @default("default.jpg")
+  active Boolean? @default(true)
 }
+
+enum Role {
+  USER
+  ADMIN
+}
+
 model Articles{
   id   Int    @id @default(autoincrement())
   userId Int
@@ -27,5 +38,7 @@ model Articles{
   description String
   published Boolean @default(true)
   createdAt DateTime @default(now())
+  imageCover String? @default("default.jpg") 
   updatedAt DateTime @updatedAt
+  rating Int @default(1)
 }

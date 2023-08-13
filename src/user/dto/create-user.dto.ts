@@ -7,7 +7,7 @@ import {
 } from 'class-validator';
 import { User } from '../entities/user.entity';
 
-export class CreateUserDto implements User {
+export class CreateUserDto {
   id: number;
   @IsNotEmpty()
   @IsString()
