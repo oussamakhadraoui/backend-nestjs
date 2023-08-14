@@ -21,13 +21,14 @@ export class UserService {
         throw new BadRequestException('Confirmation password is not correct!');
       }
       const salt = await bcrypt.genSalt();
-      console.log(salt);
       const password = await bcrypt.hash(createUserDto.password, salt);
       const user = await this.prisma.users.create({
         data: { email, salt, password, name, role: 'USER' },
       });
       delete user.passResetExpire;
       delete user.passResetToken;
+      delete user.salt;
+      delete user.password;
       return user;
     } catch (error) {
       if ((error.code = 'p2002')) {
@@ -78,6 +79,10 @@ export class UserService {
         HttpStatus.NOT_FOUND,
       );
     }
+    delete userToDelete.passResetExpire;
+    delete userToDelete.passResetToken;
+    delete userToDelete.salt;
+    delete userToDelete.password;
     return userToDelete;
   }
 }

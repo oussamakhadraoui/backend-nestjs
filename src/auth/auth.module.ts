@@ -7,6 +7,7 @@ import { PassportModule } from '@nestjs/passport';
 import { UserModule } from 'src/user/user.module';
 import { JwtStrategy } from 'src/auth/strategy/jwt.strategy';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { ConfigModule } from '@nestjs/config';
 @Module({
   imports: [
     UserModule,
@@ -15,6 +16,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
       secret: 'oussama',
       signOptions: { expiresIn: '3600' },
     }),
+    ConfigModule.forRoot(),
   ],
   controllers: [AuthController],
   providers: [AuthService, UserService, PrismaService, JwtStrategy],

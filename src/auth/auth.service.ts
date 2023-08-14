@@ -15,6 +15,7 @@ import { forgetDto } from './dto/forget.dto';
 import * as crypto from 'crypto';
 import { sendingMail } from './utils/mailer';
 import { resetPassDto } from './dto/resetToken.dto';
+import { resetPasswordDto } from './dto/resetPassword.dto';
 @Injectable()
 export class AuthService {
   constructor(
@@ -86,15 +87,36 @@ export class AuthService {
     }
     return passResetExpire;
   }
-  async resetPass(token: string) {
-    console.log(token);
+  async resetPass(token: string, resetPasswordDto: resetPasswordDto) {
     const passResetToken = crypto
       .createHash('sha256')
       .update(token)
       .digest('hex');
-    const user = await this.PrismaService.users.findFirst({
-      where: { passResetToken },
+    const user = await this.PrismaService.users.findUnique({
+      where: {
+        passResetToken,
+        AND: { passResetExpire: { gt: new Date() } },
+      },
     });
-    return user.email;
+    if (!user) {
+      throw new HttpException(
+        'No User is founded or the token is expired',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    const { confirmPass, Resetpassword } = resetPasswordDto;
+    if (Resetpassword !== confirmPass) {
+      return new HttpException(
+        'the confirmation of the password is not match with the password',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const salt = await bcrypt.genSalt();
+    const password = await bcrypt.hash(Resetpassword, salt);
+    await this.PrismaService.users.update({
+      where: { id: user.id },
+      data: { password, salt },
+    });
+    return user;
   }
 }
