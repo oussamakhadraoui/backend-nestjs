@@ -14,8 +14,9 @@ import { JwtService } from '@nestjs/jwt';
 import { forgetDto } from './dto/forget.dto';
 import * as crypto from 'crypto';
 import { sendingMail } from './utils/mailer';
-import { resetPassDto } from './dto/resetToken.dto';
 import { resetPasswordDto } from './dto/resetPassword.dto';
+import { changePassDto } from './dto/changePass.dto';
+import { User } from 'src/user/entities/user.entity';
 @Injectable()
 export class AuthService {
   constructor(
@@ -118,5 +119,29 @@ export class AuthService {
       data: { password, salt },
     });
     return user;
+  }
+  async changePass(changePassDto: changePassDto, user: User) {
+    if (changePassDto.confirmNewPass !== changePassDto.newPass) {
+      throw new HttpException(
+        'the confirmation of the password is not match with the password',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const CurrentUser = await this.PrismaService.users.findUnique({
+      where: { id: user.id },
+    });
+    if (!CurrentUser) {
+      throw new HttpException(
+        'there is something wrong try to login again',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const salt = await bcrypt.genSalt();
+    const password = await bcrypt.hash(changePassDto.newPass, salt);
+    await this.PrismaService.users.update({
+      where: { id: user.id },
+      data: { password, salt },
+    });
+    return CurrentUser;
   }
 }

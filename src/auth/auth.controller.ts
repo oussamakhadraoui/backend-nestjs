@@ -17,6 +17,9 @@ import { JwtAuthGuard } from './guard/jwt-auth.guard';
 import { forgetDto } from './dto/forget.dto';
 import { resetPassDto } from './dto/resetToken.dto';
 import { resetPasswordDto } from './dto/resetPassword.dto';
+import { changePassDto } from './dto/changePass.dto';
+import { getUser } from './decorator/get-user.decorator';
+import { User } from 'src/user/entities/user.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -51,5 +54,11 @@ export class AuthController {
     @Param('token') token: string,
   ) {
     return this.authService.resetPass(token, resetPasswordDto);
+  }
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
+  @Patch('changePass')
+  changePass(@Body() changePassDto: changePassDto, @getUser() user: User) {
+    return this.authService.changePass(changePassDto, user);
   }
 }
