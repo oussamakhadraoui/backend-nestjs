@@ -9,6 +9,7 @@ import {
   ValidationPipe,
   Patch,
   Param,
+  Res,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
@@ -20,7 +21,7 @@ import { resetPasswordDto } from './dto/resetPassword.dto';
 import { changePassDto } from './dto/changePass.dto';
 import { getUser } from './decorator/get-user.decorator';
 import { User } from 'src/user/entities/user.entity';
-
+import { Response } from 'express';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -31,9 +32,20 @@ export class AuthController {
   }
 
   @Post('login')
-  login(@Body() loginDto: loginDto) {
-    return this.authService.login(loginDto);
+  async login(
+    @Body() loginDto: loginDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const token = await this.authService.login(loginDto);
+    const secretData = {
+      access_token: token.access_token,
+      refreshToken: '',
+    };
+    console.log(token);
+    res.cookie('auth_cookie', secretData, { httpOnly: true });
+    return token;
   }
+  @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
   @Post('forgetPass')
   forgetPass(@Body() forgetDto: forgetDto) {
@@ -60,5 +72,9 @@ export class AuthController {
   @Patch('changePass')
   changePass(@Body() changePassDto: changePassDto, @getUser() user: User) {
     return this.authService.changePass(changePassDto, user);
+  }
+  @Get('signout')
+  async logout(@Res({ passthrough: true }) res: Response) {
+    res.cookie('access_token', '', { expires: new Date() });
   }
 }
