@@ -8,17 +8,24 @@ import { UserModule } from 'src/user/user.module';
 import { JwtStrategy } from 'src/auth/strategy/jwt.strategy';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ConfigModule } from '@nestjs/config';
+import { JwtRefreshStrategy } from './strategy/jwt-refresh.strategy';
 @Module({
   imports: [
     UserModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
       secret: 'oussama',
-      signOptions: { expiresIn: '3600' },
+      signOptions: { expiresIn: '60s' },
     }),
     ConfigModule.forRoot(),
   ],
   controllers: [AuthController],
-  providers: [AuthService, UserService, PrismaService, JwtStrategy],
+  providers: [
+    AuthService,
+    UserService,
+    PrismaService,
+    JwtStrategy,
+    JwtRefreshStrategy,
+  ],
 })
 export class AuthModule {}

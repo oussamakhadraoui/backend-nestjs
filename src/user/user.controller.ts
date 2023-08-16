@@ -15,6 +15,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { QueryDto } from './dto/query.dto';
 import { User } from './entities/user.entity';
+import { Throttle } from '@nestjs/throttler';
 @UsePipes(ValidationPipe)
 @Controller('user')
 export class UserController {
@@ -24,7 +25,7 @@ export class UserController {
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
-
+  @Throttle(3, 10)
   @Get()
   findAll(@Query() QueryDto: QueryDto): Promise<User[]> {
     return this.userService.findAll(QueryDto);
@@ -37,7 +38,6 @@ export class UserController {
   @UsePipes(ValidationPipe)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    console.log(updateUserDto);
     return this.userService.update(+id, updateUserDto);
   }
 
@@ -46,3 +46,5 @@ export class UserController {
     return this.userService.remove(+id);
   }
 }
+
+// implement the rate limiting customize the function is already in

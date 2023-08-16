@@ -1,28 +1,32 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
-import { payload } from 'src/auth/interface/payload.interface';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Request as RequestType } from 'express';
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
+export class JwtRefreshStrategy extends PassportStrategy(
+  Strategy,
+  'jwt-refresh',
+) {
   constructor(private prisma: PrismaService) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
-        JwtStrategy.extractJWT,
+        JwtRefreshStrategy.extractJWT,
         ExtractJwt.fromAuthHeaderAsBearerToken(),
+        ExtractJwt.fromBodyField('refresh'),
       ]),
       ignoreExpiration: false,
       secretOrKey: 'oussama',
     });
   }
   private static extractJWT(req: RequestType): string | null {
+    console.log(req.cookies.auth_cookie.access_token);
     if (
       req.cookies &&
       'auth_cookie' in req.cookies &&
-      req.cookies.auth_cookie.access_token.length > 0
+      req.cookies.auth_cookie.refresh_token.length > 0
     ) {
-      return req.cookies.auth_cookie.access_token;
+      return req.cookies.auth_cookie.refresh_token;
     }
     return null;
   }

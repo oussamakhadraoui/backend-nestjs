@@ -47,6 +47,7 @@ export class AuthService {
 
     return {
       access_token: this.jwtService.sign(payload),
+      refresh_token: this.jwtService.sign(payload, { expiresIn: '7d' }),
     };
   }
   async forgetPass(forgetDto: forgetDto) {
@@ -143,5 +144,13 @@ export class AuthService {
       data: { password, salt },
     });
     return CurrentUser;
+  }
+  async refreshToken(user: User) {
+    const payload: payload = {
+      email: user.email,
+      sub: user.id,
+    };
+    const token = this.jwtService.sign(payload);
+    return { access_token: token };
   }
 }
