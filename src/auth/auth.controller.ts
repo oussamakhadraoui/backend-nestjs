@@ -39,9 +39,9 @@ export class AuthController {
     const token = await this.authService.login(loginDto);
     const secretData = {
       access_token: token.access_token,
-      refresh_token: token.refresh_token,
+      user: token.user,
     };
-    res.cookie('auth_cookie', secretData, { httpOnly: true });
+    res.cookie('refresh_token', token.refresh_token, { httpOnly: true });
     return secretData;
   }
   @UseGuards(JwtAuthGuard)

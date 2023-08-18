@@ -20,13 +20,12 @@ export class JwtRefreshStrategy extends PassportStrategy(
     });
   }
   private static extractJWT(req: RequestType): string | null {
-    console.log(req.cookies.auth_cookie.access_token);
     if (
       req.cookies &&
       'auth_cookie' in req.cookies &&
       req.cookies.auth_cookie.refresh_token.length > 0
     ) {
-      return req.cookies.auth_cookie.refresh_token;
+      // return req.cookies.auth_cookie.refresh_token;
     }
     return null;
   }

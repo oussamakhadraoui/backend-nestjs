@@ -22,7 +22,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       'auth_cookie' in req.cookies &&
       req.cookies.auth_cookie.access_token.length > 0
     ) {
-      return req.cookies.auth_cookie.access_token;
+      // return req.cookies.auth_cookie.access_token;
     }
     return null;
   }
