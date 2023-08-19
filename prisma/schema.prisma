@@ -20,6 +20,7 @@ model Users {
   role  Role    @default(USER)
   photo String? @default("default.jpg")
   active Boolean? @default(true)
+  token String?
 }
 
 enum Role {

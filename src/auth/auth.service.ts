@@ -44,10 +44,17 @@ export class AuthService {
       email: user.email,
       sub: user.id,
     };
-
+    const RefreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+    await this.PrismaService.users.update({
+      where: { email },
+      data: { token: RefreshToken },
+    });
+    delete user.passResetExpire;
+    delete user.passResetToken;
+    delete user.salt;
+    delete user.password;
     return {
       access_token: this.jwtService.sign(payload),
-      refresh_token: this.jwtService.sign(payload, { expiresIn: '7d' }),
       user,
     };
   }

@@ -12,4 +12,5 @@ export class User implements Users {
   passResetToken: string;
   photo: string;
   role: $Enums.Role;
+  token: string;
 }

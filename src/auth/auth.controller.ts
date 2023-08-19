@@ -22,9 +22,13 @@ import { getUser } from './decorator/get-user.decorator';
 import { User } from 'src/user/entities/user.entity';
 import { Response } from 'express';
 import { JwtRefAuthGuard } from './guard/jwt-refresh-auth.guard';
+import { PrismaService } from 'src/prisma/prisma.service';
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly PrismaService: PrismaService,
+  ) {}
   @UsePipes(ValidationPipe)
   @Post('signup')
   signin(@Body() CreateUserDto: CreateUserDto) {
@@ -37,11 +41,17 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const token = await this.authService.login(loginDto);
+    const refresh_token = token.user.token;
+    console.log(refresh_token);
+    res.cookie('refresh_token', refresh_token, {
+      httpOnly: true,
+      secure: true,
+      maxAge: 24 * 60 * 60 * 1000,
+    });
     const secretData = {
       access_token: token.access_token,
       user: token.user,
     };
-    res.cookie('refresh_token', token.refresh_token, { httpOnly: true });
     return secretData;
   }
   @UseGuards(JwtAuthGuard)
@@ -54,7 +64,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   getProfile(@Request() req) {
-    return req.user;
+    return { ...req.user, token: undefined };
   }
 
   @UsePipes(ValidationPipe)
