@@ -15,16 +15,16 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       secretOrKey: 'oussama',
     });
   }
-  // private static extractJWT(req: RequestType): string | null {
-  //   if (
-  //     req.cookies &&
-  //     'refresh_token' in req.cookies &&
-  //     req.cookies.refresh_token.length > 0
-  //   ) {
-  //     return req.cookies.refresh_token;
-  //   }
-  //   return null;
-  // }
+  private static extractJWT(req: RequestType): string | null {
+    if (
+      req.cookies &&
+      'refresh_token' in req.cookies &&
+      req.cookies.refresh_token.length > 0
+    ) {
+      return req.cookies.refresh_token;
+    }
+    return null;
+  }
   async validate(payload: any) {
     const user = await this.prisma.users.findUnique({
       where: { id: payload.sub },

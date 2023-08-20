@@ -53,8 +53,9 @@ export class AuthService {
     delete user.passResetToken;
     delete user.salt;
     delete user.password;
+
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: this.jwtService.sign(payload, { expiresIn: '30s' }),
       user,
     };
   }
@@ -158,7 +159,9 @@ export class AuthService {
       email: user.email,
       sub: user.id,
     };
-    const token = this.jwtService.sign(payload);
-    return { access_token: token };
+
+    return {
+      access_token: this.jwtService.sign(payload, { expiresIn: '30s' }),
+    };
   }
 }

@@ -12,7 +12,7 @@ import { JwtRefreshStrategy } from './strategy/jwt-refresh.strategy';
 @Module({
   imports: [
     UserModule,
-    PassportModule.register({ defaultStrategy: 'jwt' }),
+    PassportModule.register({ defaultStrategy: ['jwt', 'jwt-refresh'] }),
     JwtModule.register({
       secret: 'oussama',
       signOptions: { expiresIn: '60s' },

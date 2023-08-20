@@ -13,7 +13,6 @@ export class JwtRefreshStrategy extends PassportStrategy(
       jwtFromRequest: ExtractJwt.fromExtractors([
         JwtRefreshStrategy.extractJWT,
         ExtractJwt.fromAuthHeaderAsBearerToken(),
-        ExtractJwt.fromBodyField('refresh'),
       ]),
       ignoreExpiration: false,
       secretOrKey: 'oussama',

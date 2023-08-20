@@ -11,9 +11,11 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
 import { QueryDto } from './dto/query.dto';
 import { User } from './entities/user.entity';
+import { JwtService } from '@nestjs/jwt';
+import { payload } from 'src/auth/interface/payload.interface';
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private jwtService: JwtService) {}
   async create(createUserDto: CreateUserDto) {
     try {
       const { name, email } = createUserDto;
@@ -22,14 +24,28 @@ export class UserService {
       }
       const salt = await bcrypt.genSalt();
       const password = await bcrypt.hash(createUserDto.password, salt);
-      const user = await this.prisma.users.create({
+      const createUser = await this.prisma.users.create({
         data: { email, salt, password, name, role: 'USER' },
+      });
+      const payload: payload = {
+        email: createUser.email,
+        sub: createUser.id,
+      };
+      const RefreshToken = this.jwtService.sign(payload, {
+        expiresIn: '7d',
+      });
+      const user = await this.prisma.users.update({
+        where: { email: createUser.email },
+        data: { token: RefreshToken },
       });
       delete user.passResetExpire;
       delete user.passResetToken;
       delete user.salt;
       delete user.password;
-      return user;
+      return {
+        access_token: this.jwtService.sign(payload, { expiresIn: '30s' }),
+        user,
+      };
     } catch (error) {
       if ((error.code = 'p2002')) {
         console.log(error);
