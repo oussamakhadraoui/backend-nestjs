@@ -33,6 +33,7 @@ export class UserService {
       };
       const RefreshToken = this.jwtService.sign(payload, {
         expiresIn: '7d',
+        secret: 'oussama22',
       });
       const user = await this.prisma.users.update({
         where: { email: createUser.email },
@@ -43,7 +44,7 @@ export class UserService {
       delete user.salt;
       delete user.password;
       return {
-        access_token: this.jwtService.sign(payload, { expiresIn: '30s' }),
+        access_token: this.jwtService.sign(payload),
         user,
       };
     } catch (error) {

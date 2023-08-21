@@ -23,8 +23,8 @@ import { resetPasswordDto } from './dto/resetPassword.dto';
 import { changePassDto } from './dto/changePass.dto';
 import { getUser } from './decorator/get-user.decorator';
 import { User } from 'src/user/entities/user.entity';
-import { Request as req, Response } from 'express';
-import { JwtRefAuthGuard } from './guard/jwt-refresh-auth.guard';
+import { Response } from 'express';
+import { RefreshJwtGuard } from './guard/jwt-refresh-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -80,8 +80,8 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('profile')
-  getProfile(@Request() req) {
-    return { ...req.user, token: undefined };
+  getProfile(@getUser() user: User) {
+    return { user, token: undefined };
   }
 
   @UsePipes(ValidationPipe)
@@ -103,7 +103,7 @@ export class AuthController {
     res.cookie('access_token', '', { expires: new Date() });
   }
 
-  @UseGuards(JwtRefAuthGuard)
+  @UseGuards(RefreshJwtGuard)
   @Get('ref')
   async refreshToken(@getUser() user: User) {
     return this.authService.refreshToken(user);

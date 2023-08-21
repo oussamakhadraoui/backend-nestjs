@@ -15,7 +15,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
         ExtractJwt.fromAuthHeaderAsBearerToken(),
       ]),
       ignoreExpiration: false,
-      secretOrKey: 'oussama',
+      secretOrKey: 'oussama22',
     });
   }
   private static extractJWT(req: RequestType): string | null {
