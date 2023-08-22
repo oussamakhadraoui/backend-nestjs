@@ -4,7 +4,6 @@ import {
   Post,
   UseGuards,
   Get,
-  Request,
   UsePipes,
   ValidationPipe,
   Patch,
@@ -12,7 +11,6 @@ import {
   Res,
   HttpCode,
   HttpStatus,
-  Req,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
@@ -56,20 +54,7 @@ export class AuthController {
     @Body() loginDto: loginDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const UserData = await this.authService.login(loginDto);
-    const refresh_token = UserData.user.token;
-    res.cookie('refresh_token', refresh_token, {
-      httpOnly: true,
-      secure: true,
-      maxAge: 24 * 60 * 60 * 1000,
-      // sameSite: 'none',
-    });
-    delete UserData.user.token;
-    const secretData = {
-      access_token: UserData.access_token,
-      user: UserData.user,
-    };
-    return secretData;
+    return await this.authService.login(loginDto, res);
   }
   @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)

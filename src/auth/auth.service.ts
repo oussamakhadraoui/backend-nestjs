@@ -17,6 +17,7 @@ import { sendingMail } from './utils/mailer';
 import { resetPasswordDto } from './dto/resetPassword.dto';
 import { changePassDto } from './dto/changePass.dto';
 import { User } from 'src/user/entities/user.entity';
+import { Response } from 'express';
 @Injectable()
 export class AuthService {
   constructor(
@@ -28,7 +29,7 @@ export class AuthService {
     return await this.UserService.create(CreateUserDto);
   }
 
-  async login(loginDto: loginDto) {
+  async login(loginDto: loginDto, res: Response) {
     const { email, password } = loginDto;
     const user = await this.PrismaService.users.findFirst({ where: { email } });
     if (!user) {
@@ -52,15 +53,32 @@ export class AuthService {
       where: { email },
       data: { token: RefreshToken },
     });
+
+    res.cookie('refresh', RefreshToken, {
+      path: '/',
+      domain: '.localhost',
+      httpOnly: true,
+      secure: false,
+      maxAge: 1000 * 60 * 60 * 24,
+      expires: new Date(Date.now() + 25892000000),
+      sameSite: 'lax',
+    });
+    res.cookie('oussama', 'oussam', {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+    });
+
+    delete user.token;
     delete user.passResetExpire;
     delete user.passResetToken;
     delete user.salt;
     delete user.password;
-
-    return {
+    const secretData = {
       access_token: this.jwtService.sign(payload),
-      user,
+      user: user,
     };
+    return secretData;
   }
   async forgetPass(forgetDto: forgetDto) {
     const { email } = forgetDto;
