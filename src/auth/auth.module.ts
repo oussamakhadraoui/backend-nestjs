@@ -15,7 +15,7 @@ import { JwtRefreshStrategy } from './strategy/jwt-refresh.strategy';
     PassportModule.register({}),
     JwtModule.register({
       secret: 'oussama',
-      signOptions: { expiresIn: '20s' },
+      signOptions: { expiresIn: '1h' },
     }),
     ConfigModule.forRoot(),
   ],

@@ -52,7 +52,7 @@ export class ArticleService {
     return articleToUpdate;
   }
 
-  async remove(id: number, user: User): Promise<Article> {
+  async remove(id: number, user: User) {
     const article = await this.findOne(id, user);
     if (!article) {
       throw new BadRequestException(`there is no article with this id: ${id}`);
@@ -61,6 +61,6 @@ export class ArticleService {
       where: { id, AND: { userId: user.id } },
     });
 
-    return articleToRemove;
+    return { articleToRemove: articleToRemove };
   }
 }

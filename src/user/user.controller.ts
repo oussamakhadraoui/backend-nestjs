@@ -10,6 +10,7 @@ import {
   ValidationPipe,
   Query,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -18,6 +19,9 @@ import { QueryDto } from './dto/query.dto';
 import { User } from './entities/user.entity';
 import { Throttle } from '@nestjs/throttler';
 import { Response } from 'express';
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/guard/rbac.guard';
+import { Roles } from 'src/auth/decorator/roles.decorator';
 @UsePipes(ValidationPipe)
 @Controller('user')
 export class UserController {
@@ -44,16 +48,21 @@ export class UserController {
     return secretData;
   }
   @Throttle(3, 10)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   @Get()
   findAll(@Query() QueryDto: QueryDto): Promise<User[]> {
     return this.userService.findAll(QueryDto);
   }
-
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.userService.findOne(+id);
   }
   @UsePipes(ValidationPipe)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(+id, updateUserDto);
